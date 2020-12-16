@@ -33,68 +33,33 @@ const mkdir = promisify(fs.mkdir);
   await rmdir("lib", { recursive: true });
   await mkdir("lib");
 
-  let libExport = "";
-  let definitions = `export interface CarbonIconEvents {
-  click: MouseEvent,
-  mouseover: MouseEvent,
-  mouseenter: MouseEvent,
-  mouseleave: MouseEvent,
-  keyup: KeyboardEvent,
-  keydown: KeyboardEvent
-}
-
-export declare class CarbonIcon {
-  $$prop_def: {
-    /** @type {string} [id] */
+  const iconType = `import { Component } from 'solid-js/types/render';
+  export declare interface CarbonIconProps {
     id?: string;
-
-    /** @type {string} [class] */
     class?: string;
-
-    /** @type {string} [tabindex] */
+    className?: string;
     tabindex?: string;
-
-    /** @type {boolean} [focusable] */
     focusable?: boolean;
-
-    /** @type {string} [title] */
     title?: string;
-
-    /** @type {string} [style] */
+    'aria-label'?: string;
+    'aria-labelledby'?: string;
     style?: string;
-
-    /**
-     * Fill color
-     * @type {string} [fill="#161616"]
-     */
     fill?: string;
-
-    /**
-     * Stroke color
-     * @type {string} [stroke="currentColor"]
-     */
     stroke?: string;
-
-    /** @type {string} [width="48"] */
     width?: string;
-
-    /** @type {string} [height="48"] */
     height?: string;
-  };
+    onClick?: MouseEvent;
+    onMouseOver?: MouseEvent;
+    onMouseEnter?: MouseEvent;
+    onMouseLeave?: MouseEvent;
+    onKeyUp?: KeyboardEvent;
+    onKeyDown?: KeyboardEvent;
+}
+export declare type CarbonIconComponent = Component<CarbonIconProps>;
+\n\n`;
 
-  $$slot_def: {
-    /** @type {{}} [default] */
-    default?: {};
-  };
-
-  $$events_def: CarbonIconEvents;
-
-  /**
-   * stub $on method from svelte-shims.d.ts
-   * https://github.com/sveltejs/language-tools/blob/master/packages/svelte2tsx/svelte-shims.d.ts#L48
-   */
-  $on<K extends keyof CarbonIconEvents>(event: K, handler: (e: CarbonIconEvents[K]) => any): void;
-}\n\n`;
+  let libExport = "";
+  let definitions = "import { CarbonIconComponent } from './index'; export { CarbonIconComponent } from './index';";
 
   const bySize: Record<string, string[]> = {
     glyph: [],
@@ -111,13 +76,13 @@ export declare class CarbonIcon {
       bySize[icon.size.toString()].push(templateSvg(icon));
 
       libExport += `export { default as ${moduleName} } from "./${moduleName}";\n`;
-      definitions += `export declare class ${moduleName} extends CarbonIcon {}\n`;
+      definitions += `export declare const ${moduleName} : CarbonIconComponent;\n`;
 
       await mkdir(`lib/${moduleName}`);
-      await writeFile(`lib/${moduleName}/${moduleName}.svelte`, template(icon));
+      await writeFile(`lib/${moduleName}/index.tsx`, template(icon));
       await writeFile(
         `lib/${moduleName}/index.js`,
-        `import ${moduleName} from "./${moduleName}.svelte";\nexport default ${moduleName};`
+        `import ${moduleName} from "./index.tsx";\nexport default ${moduleName};`
       );
       await writeFile(
         `lib/${moduleName}/index.d.ts`,
@@ -127,6 +92,7 @@ export declare class CarbonIcon {
   });
 
   await writeFile("lib/index.js", libExport);
+  await writeFile("lib/index.ts", iconType);
 
   const version = `[@carbon/icons@${VERSION}](https://unpkg.com/browse/@carbon/icons@${VERSION}/)`;
   const total = iconModuleNames.length;

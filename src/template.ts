@@ -7,50 +7,48 @@ import { IconOutput } from "@carbon/icons";
 
 function template(output: IconOutput) {
   const { moduleName, descriptor } = output;
+  const {fill, width, height, ...attrs} = descriptor.attrs;
 
-  return `<script>
-  let className = undefined;
-  export { className as class };
-  export let id = undefined;
-  export let tabindex = undefined;
-  export let focusable = ${defaultAttributes.focusable};
-  export let title = undefined;
-  export let style = undefined;
-
-  $: ariaLabel = $$props['aria-label'];
-  $: ariaLabelledBy = $$props['aria-labelledby'];
-  $: labelled = ariaLabel || ariaLabelledBy || title;
-  $: attributes = {
-    'aria-label': ariaLabel,
-    'aria-labelledby': ariaLabelledBy,
-    'aria-hidden': labelled ? undefined : true,
-    role: labelled ? 'img' : undefined,
-    focusable: tabindex === '0' ? true : focusable,
-    tabindex
-  };
-</script>
-
-<svg
-  data-carbon-icon="${moduleName}"
-  on:click
-  on:mouseover
-  on:mouseenter
-  on:mouseleave
-  on:keyup
-  on:keydown
-  ${formatAttributes(descriptor.attrs)}
-  class={className}
-  preserveAspectRatio="${defaultAttributes.preserveAspectRatio}"
-  {style}
-  {id}
-  {...attributes}>
-  ${descriptor.content.map((element) => toString(element)).join("")}
-  <slot>
-    {#if title}
-      <title>{title}</title>
-    {/if}
-  </slot>
-</svg>`;
+  return `
+  import { CarbonIconComponent } from '../index';
+  const ${moduleName} : CarbonIconComponent = (props) => (
+    <svg
+      data-carbon-icon="${moduleName}"
+      fill={props.fill || "${fill}"}
+      width={props.width || "${width}"}
+      height={props.height || "${height}"}
+      ${formatAttributes(attrs)}
+      preserveAspectRatio="${defaultAttributes.preserveAspectRatio}"
+      aria-label={props["aria-label"]}
+      aria-labelledby={props["aria-labelledby"]}
+      aria-hidden={
+        props["aria-label"] || props["aria-labelledby"] || props.title
+      }
+      role={
+        props["aria-label"] || props["aria-labelledby"] || props.title
+          ? "img"
+          : undefined
+      }
+      focusable={props.tabindex === "0" ? true : props.focusable}
+      tabindex={props.tabindex}
+      id={props.id}
+      class={props.class}
+      className={props.className}
+      title={props.title}
+      style={props.style}
+      stroke={props.stroke}
+      onClick={props.onClick}
+      onMouseOver={props.onMouseOver}
+      onMouseEnter={props.onMouseEnter}
+      onMouseLeave={props.onMouseLeave}
+      onKeyUp={props.onKeyUp}
+      onKeyDown={props.onKeyDown}
+    >
+      ${descriptor.content.map((element) => toString(element)).join("")}
+      {props.children || (props.title && <title>{props.title}</title>)}
+    </svg>
+  );
+  export default ${moduleName};`;
 }
 
 function templateSvg(output: IconOutput) {

@@ -5,7 +5,9 @@
     "outDir": "dist",
     "resolveJsonModule": true,
     "strict": true,
-    "target": "es5"
+    "target": "es5",
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js"
   },
   "include": ["src"],
   "exclude": ["src/*.test.ts"]
