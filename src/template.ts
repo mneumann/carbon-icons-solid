@@ -5,13 +5,13 @@ import {
 } from "@carbon/icon-helpers";
 import { IconOutput } from "@carbon/icons";
 
-function template(output: IconOutput) {
+function template(output: IconOutput, typescript: boolean) {
   const { moduleName, descriptor } = output;
   const {fill, width, height, ...attrs} = descriptor.attrs;
 
   return `
-  import { CarbonIconComponent } from '../index';
-  const ${moduleName} : CarbonIconComponent = (props) => (
+  ${typescript ? "import { CarbonIconComponent } from '../types';" : ""}
+  export const ${moduleName} ${typescript ? ": CarbonIconComponent" : ""} = (props) => (
     <svg
       data-carbon-icon="${moduleName}"
       fill={props.fill || "${fill}"}

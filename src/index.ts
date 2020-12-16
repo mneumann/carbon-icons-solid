@@ -59,7 +59,7 @@ export declare type CarbonIconComponent = Component<CarbonIconProps>;
 \n\n`;
 
   let libExport = "";
-  let definitions = "import { CarbonIconComponent } from './index'; export { CarbonIconComponent } from './index';";
+  let definitions = "import { CarbonIconComponent } from './types'; export { CarbonIconComponent } from './types';";
 
   const bySize: Record<string, string[]> = {
     glyph: [],
@@ -79,11 +79,11 @@ export declare type CarbonIconComponent = Component<CarbonIconProps>;
       definitions += `export declare const ${moduleName} : CarbonIconComponent;\n`;
 
       await mkdir(`lib/${moduleName}`);
-      await writeFile(`lib/${moduleName}/index.tsx`, template(icon));
-      await writeFile(
+      await writeFile(`lib/${moduleName}/index.tsx`, template(icon, true));
+      /*await writeFile(
         `lib/${moduleName}/index.js`,
         `import ${moduleName} from "./index.tsx";\nexport default ${moduleName};`
-      );
+      );*/
       await writeFile(
         `lib/${moduleName}/index.d.ts`,
         `export { ${moduleName} as default } from "../";\n`
@@ -92,7 +92,7 @@ export declare type CarbonIconComponent = Component<CarbonIconProps>;
   });
 
   await writeFile("lib/index.js", libExport);
-  await writeFile("lib/index.ts", iconType);
+  await writeFile("lib/types.ts", iconType);
 
   const version = `[@carbon/icons@${VERSION}](https://unpkg.com/browse/@carbon/icons@${VERSION}/)`;
   const total = iconModuleNames.length;
